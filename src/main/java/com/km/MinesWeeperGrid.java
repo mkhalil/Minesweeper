@@ -33,11 +33,11 @@ public class MinesWeeperGrid {
 
   private void fillGrid() {
     this.fillMines();
-    for (int i = 0; i < width; i++) {
-      for (int j = 0; j < height; j++) {
-        if (this.grid.get(new Cell(i, j)) == 0) {
-          final var countAdjacentMines = this.countAdjacentMines(i, j);
-          this.grid.put(new Cell(i, j), countAdjacentMines);
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        if (this.grid.get(new Cell(x, y)) == 0) {
+          final var countAdjacentMines = this.countAdjacentMines(x, y);
+          this.grid.put(new Cell(x, y), countAdjacentMines);
         }
       }
     }

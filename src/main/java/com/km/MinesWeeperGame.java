@@ -15,7 +15,8 @@ public class MinesWeeperGame {
 
 
   public MinesWeeperGame() {
-    this(4,4,2);
+    this.uncoverdCells = new HashMap<>();
+    this.gameStatus = GameStatus.READY;
   }
 
   public MinesWeeperGame(int width, int height, int mines) {
