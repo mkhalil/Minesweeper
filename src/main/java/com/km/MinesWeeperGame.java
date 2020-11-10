@@ -4,13 +4,12 @@ import static com.km.MinesWeeperGrid.MINES_CELL_VALUE;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class MinesWeeperGame {
 
-  private MinesWeeperGrid minesWeeperGrid;
-
   private final Map<Cell, Integer> uncoverdCells;
-
+  private MinesWeeperGrid minesWeeperGrid;
   private GameStatus gameStatus;
 
 
@@ -41,21 +40,24 @@ public class MinesWeeperGame {
     while (this.gameStatus == GameStatus.START) {
       final var x = minesWeeperConsole.readX(this.minesWeeperGrid.getWidth());
       final var y = minesWeeperConsole.readY(this.minesWeeperGrid.getHeight());
-      this.uncoverCell(x, y);
-      this.uncoverAllAdjacentMineCell(x, y);
-      this.updateGameStatus(x, y);
+      final var cellValue = this.uncoverCell(x, y);
+      cellValue.ifPresent(value -> {
+        if (value != MINES_CELL_VALUE) {
+          this.uncoverAllAdjacentMineCell(x, y);
+        }
+        this.updateGameStatus(value);
+      });
       minesWeeperConsole.printGrid(
           this.uncoverdCells, this.minesWeeperGrid.getWidth(), this.minesWeeperGrid.getHeight());
     }
     minesWeeperConsole.printEndGame(this.gameStatus);
   }
 
-  private void updateGameStatus(int x, int y) {
+  private void updateGameStatus(int unCovredCellValue) {
     final var maxCellToUnover = this.countMaxCellToUncover();
-    if (this.uncoverdCells.get(new Cell(x, y)) == MINES_CELL_VALUE) {
+    if (unCovredCellValue == MINES_CELL_VALUE) {
       this.gameStatus = GameStatus.FAILURE;
-    }
-    if (maxCellToUnover == this.uncoverdCells.size()) {
+    } else if (maxCellToUnover == this.uncoverdCells.size()) {
       this.gameStatus = GameStatus.WIN;
     }
   }
@@ -65,16 +67,16 @@ public class MinesWeeperGame {
         - this.minesWeeperGrid.getMines();
   }
 
-  public void uncoverCell(int x, int y) {
+
+  public Optional<Integer> uncoverCell(int x, int y) {
     final var cellValue = this.minesWeeperGrid.getGrid().get(new Cell(x, y));
-    if (cellValue != null) {
-      this.uncoverdCells.put(new Cell(x, y), cellValue);
-    }
+    this.uncoverdCells.put(new Cell(x, y), cellValue);
+    return Optional.ofNullable(cellValue);
   }
 
   public void uncoverAdjacentMineCell(int x, int y) {
     final var cellValue = this.minesWeeperGrid.getGrid().get(new Cell(x, y));
-    if (cellValue != null && cellValue > 0) {
+    if (cellValue != null && cellValue != MINES_CELL_VALUE) {
       this.uncoverdCells.putIfAbsent(new Cell(x, y), cellValue);
     }
   }
